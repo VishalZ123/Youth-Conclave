@@ -1,0 +1,31 @@
+version: '3'
+services:
+  django:
+    build:
+      context: yc_backend
+      dockerfile: Dockerfile
+    image: YC-EDM-QR/backend
+    container_name: django-backend
+    restart: unless-stopped
+    env_file: yc_backend/.env
+    environment:
+      - CHOKIDAR_USEPOLLING=true
+    ports:
+      - 8000:8000
+    volumes:
+      - ./yc_backend:/app
+    networks:
+      - app-network
+    command:
+      - /bin/sh
+      - -c
+      - |
+        python manage.py migrate
+        python manage.py runserver 0.0.0.0:8000
+
+networks:
+  app-network:
+    driver: bridge
+
+volumes:
+  dbdata:
