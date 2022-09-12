@@ -4,7 +4,7 @@ services:
     build:
       context: yc_backend
       dockerfile: Dockerfile
-    image: YC-EDM-QR/backend
+    image: yc-edm-qr/backend
     container_name: django-backend
     restart: unless-stopped
     env_file: yc_backend/.env
