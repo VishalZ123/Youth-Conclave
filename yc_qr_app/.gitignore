@@ -34,6 +34,12 @@ migrate_working_dir/
 
 # Web related
 lib/generated_plugin_registrant.dart
+lib/firebase_options.dart
+ios/firebase_app_id_file.json
+macos/firebase_app_id_file.json
+ios/Runner/GoogleService-Info.plist
+macos/Runner/GoogleService-Info.plist
+android/app/google-services.json
 
 # Symbolication related
 app.*.symbols

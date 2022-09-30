@@ -10,17 +10,10 @@ import os
 from uuid import uuid4
 from rest_framework.status import HTTP_200_OK
 
-config = {
-    "apiKey": "AIzaSyAvoPLd4_KG7BDTVMD8IwkNAshLXhHNDhE",
-    "authDomain": "youth-conclave.firebaseapp.com",
-    "databaseURL": "https://youth-conclave-default-rtdb.firebaseio.com/",
-    "projectId": "youth-conclave",
-    "storageBucket": "youth-conclave.appspot.com",
-    "messagingSenderId": "412881327801",
-    "appId": "1:412881327801:web:d006185b5b25e367db6d68",
-    "measurementId": "G-TTD5RBE176",
-}
-path = './assets/'
+import config # firebase configurations
+
+config = config.config
+path = './new_assets/'
 firebase = pyrebase.initialize_app(config)
 storage = firebase.storage()
 database = firebase.database()
@@ -43,22 +36,24 @@ def generate_qr(request):
     body = json.loads(body_unicode)
     emailList = body['emails']
 
-    for email in emailList:
+    for _ in range(emailList):
         # generate QR using email
+        
         unique_id = str(uuid4())
+        email = str(uuid4())+'@gmail.com'
         data = '{"email":"'+email+'", "uuid":"'+unique_id+'"}'
         url = pyqrcode.create(data)
         filename = "qr"+getStart(email)+".png"
         url.png(path+filename, scale=6)
 
-        # upload image to firebase
-        storage.child("qr_images/"+email+".png").put(path+filename)
-        url = storage.child("qr_images/"+email+".png").get_url(token=None)
-        os.remove(path+filename)
+        # # upload image to firebase
+        # storage.child("qr_images/"+email+".png").put(path+filename)
+        # url = storage.child("qr_images/"+email+".png").get_url(token=None)
+        # os.remove(path+filename)
 
         all = database.child('People')
         all.child(getStart(email)).set(
-            {"email": email, "present": False, "url": url, "uuid":unique_id})
+            {"email": email, "present": False, "uuid":unique_id})
         print("generated for "+email+"\n")
     return HttpResponse("QR generated for all")
 
@@ -93,3 +88,12 @@ def exit(request):
     else:
         response = 'Invalid QR'
     return HttpResponse(response, status=HTTP_200_OK)
+
+def count(request):
+    lst = database.child('People').get()
+    count=0
+    for email in lst.each():
+        c = email.val().get('sessions_attended')
+        if(c):
+            count+=c
+    return HttpResponse(count, status=HTTP_200_OK)
